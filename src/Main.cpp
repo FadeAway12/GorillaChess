@@ -1,7 +1,8 @@
-#include <iostream>
+#include "UCI.h"
+#include <bitset>
 
 int main() {
 
-	std::cout << "Hello world";
+	UCI::UCI();
 
 }

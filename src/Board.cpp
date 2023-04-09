@@ -2,6 +2,8 @@
 #include <sstream>
 #include <bitset>
 
+#include "Board.h"
+
 /*
 Contains the representation of the board, including position, en passant, castling, 50-move draw, and moveNum.
 Also has the loadFEN(string) method (for loading FEN into the representation). The printBoard() method simply
@@ -10,7 +12,8 @@ prints a representation of the board to the console.
 
 namespace Board {
 
-	//Represents position of each type of piece. Reads from (A8) right down (H1) 
+	//Represents position of each type of piece. Reads from (A8) right down (H1). 
+	//A8 is rightmost when printed, H1 is leftmost when printed.
 
 	std::uint64_t WP;
 	std::uint64_t WN;
@@ -49,11 +52,12 @@ namespace Board {
 
 	bool whiteTurn;
 
-	/*
-	Takes a string parameter in FEN notation. Parses the string and sets the board representation to
+	/**
+	 * .
+	 * Parses the string and sets the board representation to
 	reflect the FEN parameter.
-	*/
-
+	 * \param FEN
+	 */
 	void loadFEN(std::string FEN) {
 
 		/*
@@ -159,11 +163,11 @@ namespace Board {
 		moveNum = moveCount;
 
 	}
-
-	/*
-	Prints the representation of the board, including castling rights, en passant squares, and the turn.
-	*/
-
+	
+	/**
+	 * .
+	 * Prints the representation of the board, including castling rights, en passant squares, and the turn.
+	 */
 	void printBoard() {
 
 		/*
@@ -215,7 +219,7 @@ namespace Board {
 			}
 			std::cout << '\n';
 		}
-		std::cout << "  A B C D E F G H";
+		std::cout << "  A B C D E F G H\n";
 
 	}
 
