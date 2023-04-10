@@ -31,6 +31,24 @@ namespace Board {
 
 	extern bool whiteTurn;
 
+	extern std::uint64_t row1;
+	extern std::uint64_t row2;
+	extern std::uint64_t row3;
+	extern std::uint64_t row4;
+	extern std::uint64_t row5;
+	extern ::uint64_t row6;
+	extern std::uint64_t row7;
+	extern std::uint64_t row8;
+
+	extern std::uint64_t colA;
+	extern std::uint64_t colB;
+	extern std::uint64_t colC;
+	extern std::uint64_t colD;
+	extern std::uint64_t colE;
+	extern std::uint64_t colF;
+	extern std::uint64_t colG;
+	extern std::uint64_t colH;
+
 	extern void loadFEN(std::string FEN);
 
 	extern void printBoard();
