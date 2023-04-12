@@ -13,17 +13,35 @@ namespace Magic {
 	void rookBlockerToMove(int index, std::uint64_t blockerBoard);
 	void printBitBoard(const std::uint64_t& b, std::ostream& os);
 
+	/*
+	* Used to hash the moves available for the rook by blocker boards.
+	* magicRook & magicBishop store the magic numbers for each square.
+	*/
+	std::uint64_t** rookMoves[64];
+	int magicRook[64];
+
+	std::uint64_t** bishopMoves[64];
+	int magicBishop[64];
+
 	void initialize() {
-		
+
 	}
-	
+
+	int getMagic() {
+		int max = pow (2, 32);
+		int min = 0;
+		srand(time(NULL)); // Seed the time
+		int finalNum = rand() % (max - min + 1) + min; // Generate the number, assign to variable.
+		return finalNum;
+	}
+
 	/**
 	 * .
 	 * Creates a bitboard of all the candidate blockers for a rook from a certain square.
 	 * It checks the column and row the square is on. From there, it creates a bitboard by or'ing the row and column it's on, then not'ing the edge rows and columns.
 	 * This creates all candidate blockers.
 	 * \param square
-	 * \return 
+	 * \return
 	 */
 	std::uint64_t blockerMaskRook(int square) {
 
@@ -87,7 +105,7 @@ namespace Magic {
 		blockerMask &= ~(nextBit);
 		blockerBoardRook(index, blockerBoard | nextBit, blockerMask);
 		blockerBoardRook(index, blockerBoard, blockerMask);
-		
+
 	}
 
 	/**
@@ -129,7 +147,7 @@ namespace Magic {
 	 * .
 	 * Algorithm that counts the amount of "1s" in a bitboard. This isn't needed and we can just use std::popcount(i) if in C++20.
 	 * \param u
-	 * \return 
+	 * \return
 	 */
 	int onesInBB(std::uint64_t u) {
 		std::uint64_t uCount;
@@ -141,7 +159,7 @@ namespace Magic {
 	 * .
 	 * Self-explanatory. Used to find the next "1" in a bitboard.
 	 * \param b
-	 * \return 
+	 * \return
 	 */
 	int findNextBit(const std::uint64_t& b) {
 		for (int i = 0; i < 64; i++) {
@@ -159,28 +177,21 @@ namespace Magic {
 	void printBitBoard(const std::uint64_t& b, std::ostream& os) {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
-				os << (((b >> (i*8)+j) & 1) == 1) << " ";
+				os << (((b >> (i * 8) + j) & 1) == 1) << " ";
 			}
 			os << '\n';
 		}
 		os << std::endl;
 	}
 
-	
+
 
 
 }
 
 int main() {
-	
-	/*std::uint64_t rookA8 = Magic::blockerMaskRook(0);
-	Magic::blockerBoardRook(0, rookA8);
 
-	std::ofstream os{ "WritingTests.txt" };
-	for (int i = 0; i < 64; i++) {
-		std::uint64_t bb = Magic::blockerMaskRook(i);
-		Magic::printBitBoard(bb, os);
-	}*/
+	std::cout << Magic::getMagic();
 
 	std::uint64_t bb = Magic::blockerMaskRook(0);
 
@@ -190,7 +201,7 @@ int main() {
 }
 
 /* LEAVING THIS HERE FOR NOW AS I IMPLEMENT ROOK MAGIC BITBOARDS FIRST
-* 
+*
 	std::uint64_t blockerMaskBishop(int square) {
 		std::uint64_t sq = pow(2, square);
 		int n{ 1 };
