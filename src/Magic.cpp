@@ -16,6 +16,9 @@ namespace Magic {
 	void blockerBoardRook(int index, std::uint64_t blockerBoard, std::uint64_t blockerMask);
 	void rookBlockerToMove(int index, std::uint64_t blockerBoard);
 	void printBitBoard(const std::uint64_t& b, std::ostream& os);
+	void blockerBoardBishop(int index);
+	void blockerBoardBishop(int index, std::uint64_t blockerBoard, std::uint64_t blockerMask);
+	void bishopBlockerToMove(int index, std::uint64_t blockerBoard);
 
 	/*
 	* Used to hash the moves available for the rook by blocker boards.
@@ -35,6 +38,7 @@ namespace Magic {
 	void initialize() {
 		for (int i = 0; i < 64; i++) {
 			Magic::blockerBoardRook(i);
+			Magic::blockerBoardBishop(i);
 		}
 	}
 
@@ -168,6 +172,100 @@ namespace Magic {
 
 	/**
 	 * .
+	 * Creates a bitboard of all posssible blockers for a bishop on a certain square.
+	 * \param square
+	 * \return 
+	 */
+	std::uint64_t blockerMaskBishop(int square) {
+		std::uint64_t sq = pow(2, square);
+		int n{ 1 };
+		std::uint64_t blocker{};
+		std::uint64_t ur = sq, ul = sq, dr = sq, dl = sq;
+		while (ur || ul || dr || dl) {
+			ur = ur >> 7 & ~Board::colA;
+			ul = ul >> 9 & ~Board::colH;
+			dr = dr << 9 & ~Board::colA;
+			dl = dl << 7 & ~Board::colH;
+			blocker |= (ur) | (ul);
+			blocker |= (dr) | (dl);
+		}
+		blocker &= ~(sq | Board::row8 | Board::row1 | Board::colA | Board::colH);
+		return blocker;
+	}
+
+	/**
+	 * .
+	 * Creates a blocker board for a given index for a bishop.
+	 * \param index
+	 */
+	void blockerBoardBishop(int index) {
+
+		std::uint64_t blockerMask = blockerMaskBishop(index);
+		int count = std::popcount(blockerMask);
+		int magic = getMagic();
+		magicBishop[index] = magic;
+		blockerBoardBishop(index, 0, blockerMask);
+	}
+
+	/**
+	 * .
+	 * Creates all permutations for blockers on a certain square.
+	 * \param index
+	 * \param blockerBoard
+	 * \param blockerMask
+	 */
+	void blockerBoardBishop(int index, std::uint64_t blockerBoard, std::uint64_t blockerMask) {
+		int count = std::popcount(blockerMask);
+		if (count == 0) {
+			bishopBlockerToMove(index, blockerBoard);
+			return;
+		}
+		int ind = findNextBit(blockerMask);
+		std::uint64_t nextBit = (std::uint64_t)pow(2, ind);
+		blockerMask &= ~(nextBit);
+		blockerBoardBishop(index, blockerBoard | nextBit, blockerMask);
+		blockerBoardBishop(index, blockerBoard, blockerMask);
+
+	}
+
+	/**
+	 * .
+	 * Creates a list of moves using the bitboards of blockers.
+	 * \param index
+	 * \param blockerBoard
+	 */
+	void bishopBlockerToMove(int index, std::uint64_t blockerBoard) {
+		std::uint64_t pos = pow(2, index);
+		std::uint64_t moves{};
+		std::uint64_t UR { pos }, UL{ pos }, DR{ pos }, DL{ pos };
+
+		while (UR) {
+			UR = UR >> 7 & ~Board::colA;
+			moves |= UR;
+			UR &= ~blockerBoard;
+		}
+		while (DR) {
+			DR = DR << 9 & ~Board::colA;
+			moves |= DR;
+			DR &= ~blockerBoard;
+		}
+		while (UL) {
+			UL = UL >> 9 & ~Board::colH;
+			moves |= UL;
+			UL &= ~(blockerBoard);
+		}
+		while (DL) {
+			DL = DL << 7 & ~Board::colH;
+			moves |= DL;
+			DL &= ~(blockerBoard);
+		}
+		moves &= ~pos;
+
+		bishopMoves[index][blockerBoard] = moves;
+	}
+
+	/**
+	 * .
 	 * Algorithm that counts the amount of "1s" in a bitboard. This isn't needed and we can just use std::popcount(i) if in C++20.
 	 * \param u
 	 * \return
@@ -223,13 +321,19 @@ namespace Magic {
 
 	}
 
+	std::uint64_t getBishopMove(int sq) {
+
+		std::uint64_t blockerMask = Magic::blockerMaskBishop(sq);
+
+		blockerMask &= (Board::WP | Board::WR | Board::WK | Board::WQ | Board::WN | Board::WB | Board::BP | Board::BR | Board::BK | Board::BQ | Board::BN | Board::BB);
+
+		return Magic::bishopMoves[sq][blockerMask];
+
+	}
+
 }
 
 int main() {
-
-	//std::uint64_t bb = Magic::blockerMaskRook(33);
-	
-	//Magic::blockerBoardRook(33);
 	
 	Magic::initialize();
 
@@ -237,31 +341,22 @@ int main() {
 
 	Board::printBoard();
 
-	int ind;
-	for (int i = 0; i < 64; i++) if (((Board::WR >> i) & 1) == 1) ind = i;
 
-	std::uint64_t moves = Magic::getRookMove(ind);
-	Magic::printBitBoard(moves, std::cout);
+	for (int i = 0; i < 64; i++) {
+		if (((Board::WR >> i) & 1) == 1) {
+			std::uint64_t moves = Magic::getRookMove(i);
+			Magic::printBitBoard(moves, std::cout);
+		}
+		else if (((Board::WB >> i) & 1) == 1) {
+			std::uint64_t moves = Magic::getBishopMove(i);
+			Magic::printBitBoard(moves, std::cout);
+		}
+		else if (((Board::WQ >> i) & 1) == 1) {
+			std::uint64_t moves1 = Magic::getBishopMove(i);
+			std::uint64_t moves2 = Magic::getRookMove(i);
+			Magic::printBitBoard(moves1 | moves2, std::cout);
+		}
+	}
 
 	return 0;
 }
-
-/* LEAVING THIS HERE FOR NOW AS I IMPLEMENT ROOK MAGIC BITBOARDS FIRST
-*
-	std::uint64_t blockerMaskBishop(int square) {
-		std::uint64_t sq = pow(2, square);
-		int n{ 1 };
-		std::uint64_t blocker{};
-		std::uint64_t ur = sq, ul = sq, dr = sq, dl = sq;
-		while (ur || ul || dr || dl) {
-			ur = ur >> 7 & ~Board::colA;
-			ul = ul >> 9 & ~Board::colH;
-			dr = dr << 9 & ~Board::colA;
-			dl = dl << 7 & ~Board::colH;
-			blocker |= (ur) | (ul);
-			blocker |= (dr) | (dl);
-		}
-		blocker &= ~(sq | Board::row8 | Board::row1 | Board::colA | Board::colH);
-		return blocker;
-	}
-	*/
