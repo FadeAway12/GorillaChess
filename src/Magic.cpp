@@ -10,9 +10,9 @@ namespace Magic {
 	* TESTING THINGS
 	*/
 	std::ofstream ost("WritingTests.txt");
-	int a{};
 
 	int findNextBit(const std::uint64_t& b);
+	void blockerBoardRook(int index);
 	void blockerBoardRook(int index, std::uint64_t blockerBoard, std::uint64_t blockerMask);
 	void rookBlockerToMove(int index, std::uint64_t blockerBoard);
 	void printBitBoard(const std::uint64_t& b, std::ostream& os);
@@ -22,16 +22,27 @@ namespace Magic {
 	* magicRook & magicBishop store the magic numbers for each square.
 	*/
 
-	std::uint64_t** rookMoves[64];
+	std::unordered_map<std::uint64_t, std::uint64_t> rookMoves[64];
 	int magicRook[64];
 
-	std::uint64_t** bishopMoves[64];
+	std::unordered_map<std::uint64_t, std::uint64_t> bishopMoves[64];
 	int magicBishop[64];
 	
+	/**
+	 * .
+	 * Initializes all the move list maps.
+	 */
 	void initialize() {
-
+		for (int i = 0; i < 64; i++) {
+			Magic::blockerBoardRook(i);
+		}
 	}
 
+	/**
+	 * .
+	 * Returns a random integer between 0 and 2^32.
+	 * \return 
+	 */
 	int getMagic() {
 		int max = pow(2, 32);
 		int min = 0;
@@ -85,8 +96,6 @@ namespace Magic {
 	 * \param blockerMask
 	 */
 	void blockerBoardRook(int index) {
-
-		//a = 0;
 
 		std::uint64_t blockerMask = blockerMaskRook(index);
 		int count = std::popcount(blockerMask);
@@ -153,9 +162,8 @@ namespace Magic {
 			R &= ~(blockerBoard);
 		}
 		moves &= ~pos;
-		//ost << a << std::endl << std::endl; a++;
-		//printBitBoard(blockerBoard, ost);
-		//printBitBoard(moves, ost);
+
+		rookMoves[index][blockerBoard] = moves;
 	}
 
 	/**
@@ -199,8 +207,21 @@ namespace Magic {
 		os << std::endl;
 	}
 
+	/**
+	 * .
+	 * Returns the rook moves from a square. Make sure it takes specific board params.
+	 * \param sq
+	 * \return 
+	 */
+	std::uint64_t getRookMove(int sq) {
 
+		std::uint64_t blockerMask = Magic::blockerMaskRook(sq);
 
+		blockerMask &= (Board::WP | Board::WR | Board::WK | Board::WQ | Board::WN | Board::WB | Board::BP | Board::BR | Board::BK | Board::BQ | Board::BN | Board::BB);
+
+		return Magic::rookMoves[sq][blockerMask];
+
+	}
 
 }
 
@@ -210,12 +231,17 @@ int main() {
 	
 	//Magic::blockerBoardRook(33);
 	
-	for (int i = 0; i < 64; i++) {
+	Magic::initialize();
 
-		Magic::ost << (char)(i / 8 + 'A') << (i % 8)+1 << " ";
+	Board::loadFEN("r2qk1nr/ppp2Qpp/3p4/n3p3/2BPP3/2P4P/P1P2PP1/R1B1K2R b KQkq - 0 9");
 
-		Magic::blockerBoardRook(i);
-	}
+	Board::printBoard();
+
+	int ind;
+	for (int i = 0; i < 64; i++) if (((Board::WR >> i) & 1) == 1) ind = i;
+
+	std::uint64_t moves = Magic::getRookMove(ind);
+	Magic::printBitBoard(moves, std::cout);
 
 	return 0;
 }
