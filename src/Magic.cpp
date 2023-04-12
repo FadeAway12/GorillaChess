@@ -6,7 +6,11 @@
 
 namespace Magic {
 
+	/*
+	* TESTING THINGS
+	*/
 	std::ofstream ost("WritingTests.txt");
+	int a{};
 
 	int findNextBit(const std::uint64_t& b);
 	void blockerBoardRook(int index, std::uint64_t blockerBoard, std::uint64_t blockerMask);
@@ -17,18 +21,19 @@ namespace Magic {
 	* Used to hash the moves available for the rook by blocker boards.
 	* magicRook & magicBishop store the magic numbers for each square.
 	*/
+
 	std::uint64_t** rookMoves[64];
 	int magicRook[64];
 
 	std::uint64_t** bishopMoves[64];
 	int magicBishop[64];
-
+	
 	void initialize() {
 
 	}
 
 	int getMagic() {
-		int max = pow (2, 32);
+		int max = pow(2, 32);
 		int min = 0;
 		srand(time(NULL)); // Seed the time
 		int finalNum = rand() % (max - min + 1) + min; // Generate the number, assign to variable.
@@ -79,9 +84,15 @@ namespace Magic {
 	 * \param index
 	 * \param blockerMask
 	 */
-	void blockerBoardRook(int index, std::uint64_t blockerMask) {
+	void blockerBoardRook(int index) {
+
+		//a = 0;
+
+		std::uint64_t blockerMask = blockerMaskRook(index);
 		int count = std::popcount(blockerMask);
-		blockerBoardRook(0, 0, blockerMask);
+		int magic = getMagic();
+		magicRook[index] = magic;
+		blockerBoardRook(index, 0, blockerMask);
 	}
 
 	/**
@@ -120,6 +131,7 @@ namespace Magic {
 		std::uint64_t pos = pow(2, index);
 		std::uint64_t moves{};
 		std::uint64_t U{ pos }, R{ pos }, L{ pos }, D{ pos };
+		
 		while (U) {
 			U = U >> 8;
 			moves |= U;
@@ -141,6 +153,9 @@ namespace Magic {
 			R &= ~(blockerBoard);
 		}
 		moves &= ~pos;
+		//ost << a << std::endl << std::endl; a++;
+		//printBitBoard(blockerBoard, ost);
+		//printBitBoard(moves, ost);
 	}
 
 	/**
@@ -191,11 +206,16 @@ namespace Magic {
 
 int main() {
 
-	std::cout << Magic::getMagic();
+	//std::uint64_t bb = Magic::blockerMaskRook(33);
+	
+	//Magic::blockerBoardRook(33);
+	
+	for (int i = 0; i < 64; i++) {
 
-	std::uint64_t bb = Magic::blockerMaskRook(0);
+		Magic::ost << (char)(i / 8 + 'A') << (i % 8)+1 << " ";
 
-	Magic::blockerBoardRook(0, bb);
+		Magic::blockerBoardRook(i);
+	}
 
 	return 0;
 }
