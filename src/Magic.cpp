@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "Board.h"
+#include "Magic.h"
 
 namespace Magic {
 
@@ -23,24 +24,16 @@ namespace Magic {
 	/*
 	* Used to hash the moves available for the rook by blocker boards.
 	* magicRook & magicBishop store the magic numbers for each square.
+	* Use an unordered map for rookMasks/bishopMasks if it keeps acting weird.
 	*/
 
 	std::unordered_map<std::uint64_t, std::uint64_t> rookMoves[64];
+	std::uint64_t rookMasks[64];
 	int magicRook[64];
 
 	std::unordered_map<std::uint64_t, std::uint64_t> bishopMoves[64];
+	std::uint64_t bishopMasks[64];
 	int magicBishop[64];
-	
-	/**
-	 * .
-	 * Initializes all the move list maps.
-	 */
-	void initialize() {
-		for (int i = 0; i < 64; i++) {
-			Magic::blockerBoardRook(i);
-			Magic::blockerBoardBishop(i);
-		}
-	}
 
 	/**
 	 * .
@@ -90,7 +83,12 @@ namespace Magic {
 
 		row &= ~(Board::colA | Board::colH);
 		col &= ~(Board::row1 | Board::row8);
-		return (row | col) & ~sq;
+
+		std::uint64_t mask = (row | col) & ~sq;
+
+		rookMasks[square] = mask;
+
+		return mask;
 	}
 
 	/**
@@ -190,6 +188,7 @@ namespace Magic {
 			blocker |= (dr) | (dl);
 		}
 		blocker &= ~(sq | Board::row8 | Board::row1 | Board::colA | Board::colH);
+		bishopMasks[square] = blocker;
 		return blocker;
 	}
 
@@ -313,7 +312,7 @@ namespace Magic {
 	 */
 	std::uint64_t getRookMove(int sq) {
 
-		std::uint64_t blockerMask = Magic::blockerMaskRook(sq);
+		std::uint64_t blockerMask = rookMasks[sq];
 
 		blockerMask &= (Board::WP | Board::WR | Board::WK | Board::WQ | Board::WN | Board::WB | Board::BP | Board::BR | Board::BK | Board::BQ | Board::BN | Board::BB);
 
@@ -321,9 +320,15 @@ namespace Magic {
 
 	}
 
+	/**
+	 * .
+	 * Returns bishop moves from a square. Add params for the board later.
+	 * \param sq
+	 * \return 
+	 */
 	std::uint64_t getBishopMove(int sq) {
 
-		std::uint64_t blockerMask = Magic::blockerMaskBishop(sq);
+		std::uint64_t blockerMask = bishopMasks[sq];
 
 		blockerMask &= (Board::WP | Board::WR | Board::WK | Board::WQ | Board::WN | Board::WB | Board::BP | Board::BR | Board::BK | Board::BQ | Board::BN | Board::BB);
 
@@ -333,30 +338,3 @@ namespace Magic {
 
 }
 
-int main() {
-	
-	Magic::initialize();
-
-	Board::loadFEN("r2qk1nr/ppp2Qpp/3p4/n3p3/2BPP3/2P4P/P1P2PP1/R1B1K2R b KQkq - 0 9");
-
-	Board::printBoard();
-
-
-	for (int i = 0; i < 64; i++) {
-		if (((Board::WR >> i) & 1) == 1) {
-			std::uint64_t moves = Magic::getRookMove(i);
-			Magic::printBitBoard(moves, std::cout);
-		}
-		else if (((Board::WB >> i) & 1) == 1) {
-			std::uint64_t moves = Magic::getBishopMove(i);
-			Magic::printBitBoard(moves, std::cout);
-		}
-		else if (((Board::WQ >> i) & 1) == 1) {
-			std::uint64_t moves1 = Magic::getBishopMove(i);
-			std::uint64_t moves2 = Magic::getRookMove(i);
-			Magic::printBitBoard(moves1 | moves2, std::cout);
-		}
-	}
-
-	return 0;
-}
