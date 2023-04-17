@@ -327,7 +327,7 @@ namespace Magic {
 	 * \return 
 	 */
 	std::uint64_t getBishopMove(int sq) {
-
+		
 		std::uint64_t blockerMask = bishopMasks[sq];
 
 		blockerMask &= (Board::WP | Board::WR | Board::WK | Board::WQ | Board::WN | Board::WB | Board::BP | Board::BR | Board::BK | Board::BQ | Board::BN | Board::BB);
