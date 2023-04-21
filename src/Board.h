@@ -49,6 +49,13 @@ namespace Board {
 	extern std::uint64_t colG;
 	extern std::uint64_t colH;
 
+	extern std::uint64_t shortPathW;
+	extern std::uint64_t longPathW;
+	extern std::uint64_t shortPathB;
+	extern std::uint64_t longPathB;
+
+	extern std::uint64_t arrOfSquares[64];
+
 	extern void loadFEN(std::string FEN);
 
 	extern void printBoard();

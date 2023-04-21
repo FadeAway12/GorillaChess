@@ -27,7 +27,7 @@
     <ClCompile Include="src\Magic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Move.cpp">
+    <ClCompile Include="src\Move.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,10 +38,10 @@
     <ClInclude Include="src\UCI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Magic.h">
+    <ClInclude Include="src\Magic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Move.h">
+    <ClInclude Include="src\Move.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

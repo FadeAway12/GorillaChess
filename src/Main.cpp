@@ -13,9 +13,11 @@
  * Initializes all the move list maps.
  */
 void initialize() {
+	Board::arrOfSquares[0] = 0b00000000'00000000'00000000'00000000'00000000'00000000'00000000'00000001;
 	for (int i = 0; i < 64; i++) {
 		Magic::blockerBoardRook(i);
 		Magic::blockerBoardBishop(i);
+		Board::arrOfSquares[i] = Board::arrOfSquares[0] << i;
 	}
 }
 
@@ -35,46 +37,9 @@ int main() {
 
 	initialize();
 
-	Board::loadFEN("rnbqkbnr/ppp3pp/3pp3/4Pp2/3P4/8/PPP2PPP/RNBQKBNR w KQkq f6 0 4");
+	Board::loadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
 	Board::printBoard();
-
-	
-
-	for (int i = 0; i < 64; i++) {
-		if (((Board::WR >> i) & 1) == 1) {
-			std::cout << "WHITE ROOK " << std::endl;
-			std::uint64_t moves = Magic::getRookMove(i);
-			printBitBoard(moves, std::cout);
-		}
-		else if (((Board::WB >> i) & 1) == 1) {
-			std::cout << "WHITE BISHOP " << std::endl;
-			std::uint64_t moves = Magic::getBishopMove(i);
-			printBitBoard(moves, std::cout);
-		}
-		else if (((Board::WQ >> i) & 1) == 1) {
-			std::cout << "WHITE QUEEN " << std::endl;
-			std::uint64_t moves1 = Magic::getBishopMove(i);
-			std::uint64_t moves2 = Magic::getRookMove(i);
-			printBitBoard(moves1 | moves2, std::cout);
-		}
-		else if (((Board::BR >> i) & 1) == 1) {
-			std::cout << "BLACK ROOK " << std::endl;
-			std::uint64_t moves = Magic::getRookMove(i);
-			printBitBoard(moves, std::cout);
-		}
-		else if (((Board::BB >> i) & 1) == 1) {
-			std::cout << "BLACK BISHOP " << std::endl;
-			std::uint64_t moves = Magic::getBishopMove(i);
-			printBitBoard(moves, std::cout);
-		}
-		else if (((Board::BQ >> i) & 1) == 1) {
-			std::cout << "BLACK QUEEN " << std::endl;
-			std::uint64_t moves1 = Magic::getBishopMove(i);
-			std::uint64_t moves2 = Magic::getRookMove(i);
-			printBitBoard(moves1 | moves2, std::cout);
-		}
-	}
 
 	/*
 	REPRESENTATION OF A MOVE (similar to stockfish's):
@@ -93,19 +58,14 @@ int main() {
 		std::uint8_t castlingRights, std::uint64_t enPassant
 	 * \return 
 	 */
-	std::vector<std::uint16_t> dwas = Move::whiteMove(Board::WP, Board::WN, Board::WB, Board::WR, Board::WQ, Board::WK, Board::BP, Board::BN, Board::BB, Board::BR, Board::BQ, Board::BK, Board::castlingRights, Board::enPassant);
-
-	std::uint16_t toMask	{ 0b0000000000111111 };
-	std::uint16_t fromMask	{ 0b0000111111000000 };
-	std::uint16_t promoMask	{ 0b0011000000000000 };
-	std::uint16_t specMask	{ 0b1100000000000000 };
+	std::vector<std::uint16_t> dwas = Move::blackMove(Board::WP, Board::WN, Board::WB, Board::WR, Board::WQ, Board::WK, Board::BP, Board::BN, Board::BB, Board::BR, Board::BQ, Board::BK, Board::castlingRights, Board::enPassant);
 
 	for (int i = 0; i < dwas.size(); i++) {
 		std::uint16_t t = dwas[i];
-		int to = t & toMask;
-		int from = (t & fromMask) >> 6;
-		int promoType = (t & promoMask) >> 12;
-		int special = (t & specMask) >> 14;
+		int to = t & Move::toMask;
+		int from = (t & Move::fromMask) >> 6;
+		int promoType = (t & Move::promoMask) >> 12;
+		int special = (t & Move::specMask) >> 14;
 		//std::cout << from << " " << to << std::endl;
 		std::cout << squareToAlg(from) << " " << squareToAlg(to) << " " << promoType << " " << special << std::endl;
 	}

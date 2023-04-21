@@ -135,7 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Move.cpp">
+    <ClCompile Include="src\Move.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Vikra\source\repos\GorillaChess\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Vikra\source\repos\GorillaChess\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\Vikra\source\repos\GorillaChess\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -147,8 +147,8 @@
     <ClCompile Include="src\UCI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Magic.h" />
-    <ClInclude Include="Move.h" />
+    <ClInclude Include="src\Magic.h" />
+    <ClInclude Include="src\Move.h" />
     <ClInclude Include="src\Board.h" />
     <ClInclude Include="src\UCI.h" />
   </ItemGroup>
